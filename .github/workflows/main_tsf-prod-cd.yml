@@ -46,6 +46,8 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write #This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -55,6 +57,13 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
+      
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_6B28E92EA5314ED6B55DD0FA5F970245 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_60D62EB89A174778AD16B3398B655241 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_253818C5A0CC4548BB36EAB04DBC0615 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
@@ -62,5 +71,5 @@ jobs:
         with:
           app-name: 'tsf-prod-cd'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_17F63AC03E054D9C8C468D7153AF5270 }}
           package: .
+          
